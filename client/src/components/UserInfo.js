@@ -1,64 +1,92 @@
 import React, { useState } from "react";
 import axios from "axios";
-import { Link } from "react-router-dom";
 import EditUser from "./EditUser";
-import Nav from "./Nav";
-import Footer from "./Footer";
 
 axios.defaults.withCredentials = true;
 
-function UserInfoPage({ handleOnMyPage }) {
-  // const [userInfo, setUserInfo] = useState("")
+function UserInfoPage({ handleOnMyPage, userId }) {
   const [newPassword, setPassword] = useState({
+    password: "",
     newPassword: "",
     newPasswordCheck: "",
   });
-  // const [passwordCheck, setPasswordCheck] = useState(false);
   const [errorCheck, setError] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+  const [errorMessageCheck, setErrorMessageCheck] = useState(false);
 
   const handlePassword = (key) => (e) => {
     setPassword({ ...newPassword, [key]: e.target.value });
+    console.log(newPassword.newPassword);
   };
   //회원가입 정보를 변경하는 함수
 
   const checkPassword = () => {
-    setError(true);
-    // axios.get("endpoint").then(res => setError(res.body))
+    axios
+      .get(
+        `https://server.webmarker.link/users/password/${newPassword.password}`,
+        {
+          headers: {
+            authorization: `Bearer ${window.localStorage.getItem("token")}`,
+          },
+        }
+      )
+      .then((res) => {
+        if (res.data.data.result) {
+          setErrorMessageCheck(false);
+          setError(res.data.data.result);
+        } else {
+          setErrorMessageCheck(true);
+          setErrorMessage("비밀번호가 일치하지 않습니다");
+        }
+      });
   };
   //패스워드 체크하는 함수
 
   const handleChangePassowrd = () => {
     if (newPassword.newPassword === newPassword.newPasswordCheck) {
-      axios.get("http://webmarker/user/userinfo").then(() => {
-        console.log("비밀번호 변경 성공!");
-      });
+      axios
+        .patch(
+          "http://ec2-54-180-96-63.ap-northeast-2.compute.amazonaws.com/users/password",
+          { password: newPassword.newPassword },
+          {
+            headers: {
+              Authorization: `Bearer ${window.localStorage.getItem("token")}`,
+            },
+          }
+        )
+        .then(() => {
+          alert("비밀번호가 성공적으로 변경되었습니다");
+          setErrorMessageCheck(false);
+          setError(false);
+        });
     } else {
+      setErrorMessageCheck(true);
       setErrorMessage("비밀번호가 일치하지 않습니다");
     }
   };
   //비밀번호 변경 요청하는 함수
 
   return (
-    <section>
+    <section id="userinfo-page-wrapper">
       <div id="userinfo-wrapper">
         <center>
           <div id="userinfo-title">WebMarker 회원정보</div>
           <form onSubmit={(e) => e.preventDefault()}>
-            <div className="userinfo-box">webmarker@gmail.com</div>
+            <div className="userinfo-box">{userId}</div>
             <div>
               <input
                 className="userinfo-password-box"
                 type="password"
                 placeholder="현재 password"
+                onChange={handlePassword("password")}
               ></input>
             </div>
             <div>
-              <button className="userifn-btn" onClick={checkPassword}>
+              <button className="userinfo-btn" onClick={checkPassword}>
                 비밀번호확인
               </button>
               <button
-                className="userifn-btn"
+                className="userinfo-btn"
                 onClick={() => handleOnMyPage(false)}
               >
                 뒤로
@@ -67,13 +95,18 @@ function UserInfoPage({ handleOnMyPage }) {
           </form>
           {errorCheck ? (
             <EditUser
+              errorMessageCheck={errorMessageCheck}
               handlePassword={handlePassword}
               handleChangePassowrd={handleChangePassowrd}
             />
           ) : (
             ""
           )}
-          {errorCheck ? <div>{errorMessage}</div> : ""}
+          {errorMessageCheck ? (
+            <div className="invalid-feedback">{errorMessage}</div>
+          ) : (
+            ""
+          )}
         </center>
       </div>
     </section>

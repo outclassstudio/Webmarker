@@ -6,25 +6,39 @@ import AddBookmarkInfo from "../components/AddBookmarkInfo";
 import Footer from "../components/Footer";
 import Nav from "../components/Nav";
 import UserInfo from "../components/UserInfo";
+import axios from "axios";
 
-function MainPage({ handlLoginState }) {
+function MainPage() {
   const [onMyPage, setOnMyPage] = useState(false);
+  const [userId, setUserId] = useState("");
   const handleOnMyPage = (value) => {
     setOnMyPage(value);
+    axios
+      .get("https://server.webmarker.link/users/userinfo", {
+        headers: {
+          authorization: `Bearer ${window.localStorage.getItem("token")}`,
+        },
+      })
+      .then((res) => {
+        setUserId(res.data.data.email);
+      });
   };
+  //회원정보 불러오는 함수
 
   return (
-    <section>
-      <Nav handleOnMyPage={handleOnMyPage} handlLoginState={handlLoginState} />
+    <section id="main-page-wrapper">
+      <Nav handleOnMyPage={handleOnMyPage} />
       {onMyPage ? (
-        <UserInfo handleOnMyPage={handleOnMyPage} />
+        <UserInfo handleOnMyPage={handleOnMyPage} userId={userId} />
       ) : (
-        <center id="mainpage-wrapper">
+        <center id="table-wrapper">
           <BookmarkList />
           <AddBookmarkInfo />
         </center>
       )}
-      <Footer />
+      <section id="footer-position">
+        <Footer />
+      </section>
     </section>
   );
 }
