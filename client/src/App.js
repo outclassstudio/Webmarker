@@ -28,10 +28,7 @@ function App() {
   }, []);
 
   const keepLogin = () => {
-    if (
-      window.localStorage.getItem("email") &&
-      window.localStorage.getItem("password")
-    ) {
+    if (window.localStorage.getItem("token")) {
       dispatch(loginChange());
     }
   };
