@@ -38,12 +38,11 @@ export default function Login() {
       });
   };
 
+  //ouath 로그인 요청 함수
   const socialLoginHandler = () => {
     window.location.assign("https://server.webmarker.link/users/auth/google");
-    window.localStorage.setItem("token", document.cookie.accessToken);
     dispatch(loginChange());
   };
-  //ouath 로그인 요청 함수
 
   return (
     <center>

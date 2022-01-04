@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import LoginPage from "./pages/LoginPage";
 import SignUpPage from "./pages/SignUpPage";
@@ -23,7 +23,10 @@ function App() {
       });
   };
 
+  //로그인 유지를 위한 함수
   useEffect(() => {
+    // window.localStorage.setItem("token", document.cookie.accessToken);
+    keepLogin();
     getAccessToken();
   }, []);
 
@@ -32,11 +35,6 @@ function App() {
       dispatch(loginChange());
     }
   };
-  //로그인 유지를 위한 함수
-
-  useEffect(() => {
-    keepLogin();
-  }, []);
 
   return (
     <Router>
@@ -53,9 +51,3 @@ function App() {
 }
 
 export default App;
-
-// {
-//   headers: {
-//     Authorization: `Bearer ${accessToken}`,
-//   },
-// }
